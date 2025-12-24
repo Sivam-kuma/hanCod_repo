@@ -29,7 +29,10 @@ class _ServiceListingScreenState
       appBar: AppBar(
         leading: IconButton(
           icon: SvgPicture.asset("assets/svg_icons/Back-Navs.svg"),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            ref.invalidate(cartProvider);
+            context.go("/home");
+          },
         ),
           backgroundColor: Colors.white,
           title:  Text("Cleaning Services", style: TextStyle(
@@ -87,7 +90,8 @@ class _ServiceListingScreenState
                   right: 16,
                   child: GestureDetector(
                     onTap: (){
-                      context.push('/cart');
+                      ref.invalidate(cartProvider);
+                      context.go('/cart');
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15.0),

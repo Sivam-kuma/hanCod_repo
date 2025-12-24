@@ -17,7 +17,9 @@ class CartScreen extends ConsumerWidget {
       appBar: AppBar(
           leading: IconButton(
             icon: SvgPicture.asset("assets/svg_icons/Back-Navs.svg"),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              ref.invalidate(cartProvider);
+              context.go("/cleaning");},
           ),
           backgroundColor: Colors.white,
           title:  Text("Cart", style: TextStyle(
@@ -106,6 +108,7 @@ class CartScreen extends ConsumerWidget {
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: (){
+                            ref.invalidate(cartProvider);
                             context.go("/home");
                           },
                           child: Container(

@@ -32,9 +32,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     {'name': 'Cleaning', 'icon': 'assets/svg_icons/cleaning 1.svg'}, // replace with SVG/PNG later
     {'name': 'Waste Disposal', 'icon': 'assets/svg_icons/cleaning 1.svg'},
     {'name': 'Plumbing', 'icon': 'assets/svg_icons/cleaning 1.svg'},
+    {'name': 'Carpentry', 'icon': 'assets/svg_icons/cleaning 1.svg'},
     {'name': 'Electrician', 'icon': 'assets/svg_icons/cleaning 1.svg'},
     {'name': 'Painting', 'icon': 'assets/svg_icons/cleaning 1.svg'},
     {'name': 'Painting', 'icon': 'assets/svg_icons/cleaning 1.svg'},
+    {'name': 'Carpentry', 'icon': 'assets/svg_icons/cleaning 1.svg'},
     {'name': 'Carpentry', 'icon': 'assets/svg_icons/cleaning 1.svg'},
   ];
 
@@ -51,18 +53,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final servicesAsync = ref.watch(servicesProvider);
+    final servicesAsync = ref.watch(cartProvider);
     // Filter services based on search text
     final filteredServices = searchText.isEmpty
         ? availableServices
         : availableServices
         .where((s) => s['name']!.toLowerCase().contains(searchText.toLowerCase()))
         .toList();
-    final servicesToShow = filteredServices.take(7).toList();
+    const limit = 9;
+    final servicesToShow =
+    filteredServices.take(filteredServices.length < limit
+        ? filteredServices.length
+        : limit).toList();
+
 
     return Scaffold(
       backgroundColor: Color(0xffF8F8F8),
-      body: Stack(
+      body: servicesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text(error.toString())),
+        data: (services) => Stack(
         children:[
          SingleChildScrollView(
           child: Padding(
@@ -73,13 +83,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                  const SizedBox(height: 45,),
                 Row(
                   children: [
-
-                    /// ADDRESS DROPDOWN (RESPONSIVE)
                     Expanded(
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: selectedAddress,
-                          isExpanded: true, // 🔥 IMPORTANT
+                          isExpanded: true,
                           icon: SvgPicture.asset(
                             "assets/svg_icons/Path 857.svg",
                             height: 10,
@@ -91,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               child: Text(
                                 e,
                                 maxLines: 1,
-                                overflow: TextOverflow.ellipsis, // 🔥 IMPORTANT
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.black.withValues(alpha: 0.5),
@@ -110,7 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                     const SizedBox(width: 12),
 
-                    /// CART ICON (FIXED SIZE)
+
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -128,9 +136,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               shape: BoxShape.circle,
                               color: Colors.red,
                             ),
-                            child: const Text(
-                              "2",
-                              style: TextStyle(
+                            child: Text(
+                            ref.watch(cartProvider).value!.length.toString(),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
@@ -209,9 +217,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
             onChanged: (val) {
-              // setState(() {
-              //   searchText = val;
-              // });
+              setState(() {
+                searchText = val;
+              });
             },
           ),
                     ),
@@ -255,11 +263,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         crossAxisSpacing: 10,
                         childAspectRatio: 1,
                       ),
-                      itemCount: 8,
+                      itemCount: servicesToShow.length,
                       itemBuilder: (context, index) {
 
-                        // 🔹 Bottom-right position → See All
-                        if (index == 7) {
+
+                        if (index >=7 ) {
                           return GestureDetector(
                             onTap: () {
                               // Navigate to all services
@@ -272,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           );
                         }
 
-                        // 🔹 Normal services
+
                         final service = servicesToShow[index];
                         return ServiceIconCard(
                           name: service['name']!,
@@ -301,7 +309,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),),
                     TextButton(
                         onPressed: () {
-                          context.push('/cleaning');// Navigate to full services screen later
+                          ref.invalidate(cartProvider);
+                          context.go('/cleaning');// Navigate to full services screen later
                         },
                         child: const Text('See All',
                         style: TextStyle(
@@ -332,7 +341,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             right: 0,
             bottom: 0,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 14.0),
               child: Column(
                 children: [
                   SizedBox(height: 10,),
@@ -342,6 +351,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
     ],
+      ),
       ),
     );
   }
