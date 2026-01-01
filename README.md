@@ -1,16 +1,23 @@
-# hancod
+# HanCod Service App
 
-A new Flutter project.
+## Features
+- Firebase Authentication (Phone & Google)
+- Supabase Backend
+- Cleaning Services Listing
+- Cart Management
+- Riverpod State Management
 
-## Getting Started
+## Tech Stack
+- Flutter
+- Riverpod
+- Firebase Auth
+- Supabase
+- GoRouter
 
-This project is a starting point for a Flutter application.
+## How to Run
+1. Clone repo
+2. Add Firebase config
+3. Add Supabase keys
+4. Run `flutter pub get`
+5. Run app
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
