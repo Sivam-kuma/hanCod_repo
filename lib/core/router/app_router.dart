@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../screens/auth/auth_choice_screen.dart';
-import '../../screens/auth/phone_auth_screen.dart';
-import '../../screens/cart_screen/main_screen.dart';
-import '../../screens/cleaning/main_screen.dart';
-import '../../screens/home/home_screen.dart';
-import '../../screens/profile/profile.dart';
+import '../../features/auth/presentations/auth_choice_screen.dart';
+import '../../features/auth/presentations/phone_auth_screen.dart';
+import '../../features/cart_screen/presentations/main_screen.dart';
+import '../../features/cleaning/presentations/main_screen.dart';
+import '../../features/home/presentations/home_screen.dart';
+import '../../features/profile/presentation/profile.dart';
+
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(

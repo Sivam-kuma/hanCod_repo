@@ -6,7 +6,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../providers/auth_provider.dart';
+// import '../../../providers/auth_provider.dart';
+import '../controllers/auth_notifier.dart';
 
 class AuthChoiceScreen extends ConsumerWidget {
   const AuthChoiceScreen({super.key});
@@ -29,25 +30,7 @@ class AuthChoiceScreen extends ConsumerWidget {
             SizedBox(height: 100,),
             ElevatedButton(
               onPressed: () async {
-                // Step 1: Open Google account picker
-                final googleUser = await GoogleSignIn().signIn();
-                if (googleUser == null) return;
-
-                // Step 2: Get auth tokens
-                final googleAuth = await googleUser.authentication;
-
-                // Step 3: Create Firebase credential
-                final credential = GoogleAuthProvider.credential(
-                  accessToken: googleAuth.accessToken,
-                  idToken: googleAuth.idToken,
-                );
-
-                // Step 4: Sign in to Firebase
-                await ref
-                    .read(authProvider)
-                    .signInWithCredential(credential);
-
-                // Step 5: Navigate to home
+                await ref.read(authProvider.notifier).signInWithGoogle();
                 context.go('/home');
               },
               child: Row(

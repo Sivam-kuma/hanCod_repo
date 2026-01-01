@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/service.dart';
+import '../../../shared/models/cleaning.dart';
 
 
 class CleaningCard extends StatelessWidget {

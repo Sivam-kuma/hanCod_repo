@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import '../../providers/cleaning_provider.dart';
-import '../../models/service.dart';
+// import '../../../providers/cleaning_provider.dart';
+import '../../../shared/controllers/providers/cleaning_notifier.dart';
+import '../../../shared/models/cleaning.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cartAsync = ref.watch(cartProvider);
+    // final cartAsync = ref.watch(cartProvider);
+    final cleaningState = ref.watch(cleaningProvider);
+
+    final cartItems = cleaningState.services
+        .where((item) => item.quantity > 0)
+        .toList();
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -18,17 +25,16 @@ class CartScreen extends ConsumerWidget {
           leading: IconButton(
             icon: SvgPicture.asset("assets/svg_icons/Back-Navs.svg"),
             onPressed: () {
-              ref.invalidate(cartProvider);
+              // ref.invalidate(cartProvider);
               context.go("/cleaning");},
           ),
           backgroundColor: Colors.white,
           title:  Text("Cart", style: TextStyle(
               color: Colors.black.withValues(alpha: 0.7),
               fontSize: 20),)),
-      body: cartAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
-        data: (cartItems) {
+
+      body: Builder(
+        builder: (_) {
           if (cartItems.isEmpty) {
             return const Center(child: Text("Your cart is empty"));
           }
@@ -47,34 +53,30 @@ class CartScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-
                 ...cartItems.map((item) => _cartItemTile(ref, item)),
 
                 const SizedBox(height: 5),
 
-
                 TextButton(
                   onPressed: () => context.go("/cleaning"),
-                  child: Text("Add more Services",
-                  style: TextStyle(
-                    color: Colors.green.withValues(alpha: 0.7),
-                    fontSize: 16,
-                  ),),
+                  child: Text(
+                    "Add more Services",
+                    style: TextStyle(
+                      color: Colors.green.withValues(alpha: 0.7),
+                      fontSize: 16,
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 16),
-
 
                 _couponSection(),
 
                 const SizedBox(height: 16),
 
-
                 _walletInfo(),
 
                 const SizedBox(height: 16),
-
 
                 _billDetails(
                   cartItems,
@@ -86,51 +88,52 @@ class CartScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   child: Container(
-                    padding: const EdgeInsets.only(top: 16,bottom: 0),
+                    padding: const EdgeInsets.only(top: 16, bottom: 0),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: const Offset(0, 0),
-                          )
-                        ]
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 0),
+                        )
+                      ],
                     ),
                     child: Column(
                       children: [
-                        Text("Grand Total | ₹${total}"),
+                        Text("Grand Total | ₹$total"),
                         const SizedBox(height: 8),
                         GestureDetector(
-                          onTap: (){
-                            ref.invalidate(cartProvider);
+                          onTap: () {
                             context.go("/home");
                           },
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                  colors: [
-                                    Color(0xff5FCD70),
-                                    Color(0xff0E826B),
-                                  ]),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xff5FCD70),
+                                  Color(0xff0E826B),
+                                ],
+                              ),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                // const SizedBox(width: 100),
                                 const Text(
                                   "Book Slot",
-                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                                // const SizedBox(width: 120),
-                                SvgPicture.asset("assets/svg_icons/cart_arrow.svg"),
+                                SvgPicture.asset(
+                                    "assets/svg_icons/cart_arrow.svg"),
                               ],
                             ),
                           ),
@@ -169,11 +172,12 @@ class CartScreen extends ConsumerWidget {
                     child: IconButton(
                       icon: Center(child: const Icon(Icons.remove , color: Colors.white,size: 13,)),
                       onPressed: () async {
-                        await ref
-                            .read(cleaningRepositoryProvider)
-                            .decrementQuantity(item.id, item.quantity);
-                        ref.invalidate(cartProvider);
-                        ref.invalidate(servicesProvider);
+                        ref.read(cleaningProvider.notifier).decrement(item);
+                        // await ref
+                        //     .read(cleaningRepositoryProvider)
+                        //     .decrementQuantity(item.id, item.quantity);
+                        // ref.invalidate(cartProvider);
+                        // ref.invalidate(servicesProvider);
                       },
                     ),
                   ),
@@ -199,11 +203,13 @@ class CartScreen extends ConsumerWidget {
                   child: IconButton(
                     icon: const Icon(Icons.add , color: Colors.white,size: 13,),
                     onPressed: () async {
-                      await ref
-                          .read(cleaningRepositoryProvider)
-                          .incrementQuantity(item.id, item.quantity);
-                      ref.invalidate(cartProvider);
-                      ref.invalidate(servicesProvider);
+                      ref.read(cleaningProvider.notifier).increment(item);
+
+                      // await ref
+                      //     .read(cleaningRepositoryProvider)
+                      //     .incrementQuantity(item.id, item.quantity);
+                      // ref.invalidate(cartProvider);
+                      // ref.invalidate(servicesProvider);
                     },
                   ),
                 ),

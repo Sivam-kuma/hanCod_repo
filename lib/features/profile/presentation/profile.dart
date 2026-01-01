@@ -8,7 +8,7 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get current Firebase user
+
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
